@@ -1,0 +1,168 @@
+
+services:
+  # =========================
+  # ZOOKEEPER - 3 NODOS
+  # =========================
+
+  zookeeper1:
+    image: confluentinc/cp-zookeeper:7.8.0
+    container_name: biblioteca-zookeeper1
+    profiles: ["kafka"]
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: "zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888"
+      KAFKA_HEAP_OPTS: "-Xms128M -Xmx256M"
+    volumes:
+      - zookeeper1-data:/var/lib/zookeeper/data
+      - zookeeper1-log:/var/lib/zookeeper/log
+
+  zookeeper2:
+    image: confluentinc/cp-zookeeper:7.8.0
+    container_name: biblioteca-zookeeper2
+    profiles: ["kafka"]
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: "zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888"
+      KAFKA_HEAP_OPTS: "-Xms128M -Xmx256M"
+    volumes:
+      - zookeeper2-data:/var/lib/zookeeper/data
+      - zookeeper2-log:/var/lib/zookeeper/log
+
+  zookeeper3:
+    image: confluentinc/cp-zookeeper:7.8.0
+    container_name: biblioteca-zookeeper3
+    profiles: ["kafka"]
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: "zookeeper1:2888:3888;zookeeper2:2888:3888;zookeeper3:2888:3888"
+      KAFKA_HEAP_OPTS: "-Xms128M -Xmx256M"
+    volumes:
+      - zookeeper3-data:/var/lib/zookeeper/data
+      - zookeeper3-log:/var/lib/zookeeper/log
+
+  # =========================
+  # KAFKA - 3 BROKERS
+  # =========================
+
+  kafka1:
+    image: confluentinc/cp-kafka:7.8.0
+    container_name: biblioteca-kafka1
+    profiles: ["kafka"]
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    ports:
+      - "9092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka1:9092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+    volumes:
+      - kafka1-data:/var/lib/kafka/data
+
+  kafka2:
+    image: confluentinc/cp-kafka:7.8.0
+    container_name: biblioteca-kafka2
+    profiles: ["kafka"]
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    ports:
+      - "9093:29092"
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka2:9092,EXTERNAL://localhost:9093"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+    volumes:
+      - kafka2-data:/var/lib/kafka/data
+
+  kafka3:
+    image: confluentinc/cp-kafka:7.8.0
+    container_name: biblioteca-kafka3
+    profiles: ["kafka"]
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+    ports:
+      - "9094:29092"
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+      KAFKA_LISTENERS: "INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092"
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka3:9092,EXTERNAL://localhost:9094"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx512M"
+    volumes:
+      - kafka3-data:/var/lib/kafka/data
+
+  # =========================
+  # KAFKA UI
+  # =========================
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: biblioteca-kafka-ui
+    profiles: ["kafka"]
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: biblioteca
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka1:9092,kafka2:9092,kafka3:9092"
+      KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+
+volumes:
+  zookeeper1-data:
+  zookeeper1-log:
+  zookeeper2-data:
+  zookeeper2-log:
+  zookeeper3-data:
+  zookeeper3-log:
+  kafka1-data:
+  kafka2-data:
+  kafka3-data:
